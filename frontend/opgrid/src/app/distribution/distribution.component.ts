@@ -1,7 +1,9 @@
 // import { Component, OnInit } from '@angular/core';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { Map, GeoJSONSource } from 'maplibre-gl';
+import { data } from '../../data/grid'; 
 
+console.log(data.nodes);
 const SOURCE_ID = 'finnish-grid';
 
 @Component({
@@ -70,7 +72,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
     await setTimeout(() => {
       this.setupMap(map);
       this.addLine(map);
-    }, 3000);
+    }, 100);
   }
 
   async initMap() {
@@ -86,6 +88,18 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   setupMap(map: Map) {
+    let features = data.nodes.forEach(node => {
+      return {
+        "type": "Feature",
+          "properties": { "name": "First Island" },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [node.lon, node.lat]
+          }
+      }
+    });
+    console.log(features)
+
     map.addSource(SOURCE_ID, {
       type: 'geojson',
       data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_ports.geojson'
@@ -131,7 +145,6 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       'filter': ['==', '$type', 'Point']
     });
-
   }
 
   addLine(map: Map) {

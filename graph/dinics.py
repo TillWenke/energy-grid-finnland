@@ -1,4 +1,6 @@
 import numpy as np
+import networkx as nx
+import json
 
 class Network:
     def __init__(self, C):
@@ -140,5 +142,20 @@ def find_cut_edges(network, visited):
                     cross_cut_edges[s][d] = network.edge_flow[s][d]
     return cross_cut_edges
 
+def to_dense(json_filename='../grid_contracted.json'):
+    # make the graph bi-directional and make it dense
+    with open(json_filename, 'r') as infile:
+        graph = nx.node_link_graph(json.loads(infile.read()))
+        graph = nx.DiGraph(graph)
+        graph.add_node(0,power=0) # source
+        graph.add_node(1,power=0) # sink
+
+        for n in graph:
+            graph.add_edge(0, n, capacity=graph.nodes[n]['power']) if graph.nodes[n]['power'] > 0 else graph.add_edge(n, 1, capacity=graph.nodes[n]['power'])
+
+        # replace all nan's with 0's (ex line #269)
 
 
+        print(graph.adj[0])
+        graph = nx.to_numpy_matrix(graph, weight="capacity", nonedge=0.0)
+    return graph

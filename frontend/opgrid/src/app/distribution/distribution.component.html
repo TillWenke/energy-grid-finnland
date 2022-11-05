@@ -1,10 +1,18 @@
-<p>distribution works!</p>
-
 <div class="map-wrap">
   <mgl-map
     [style]="'https://demotiles.maplibre.org/style.json'"
     [zoom]="[5]"
     [center]="[27.1, 64.3]"
     >
+    <mgl-marker [lngLat]="[27.1, 64.3]">
+      <div class="marker">Jyväskylä</div>
+    </mgl-marker>
+    <mgl-marker [lngLat]="[24.945831, 60.192059]">
+      <div class="marker">Helsinki</div>
+    </mgl-marker>
+
+    <mgl-marker [lngLat]="[node.lon, node.lat]" *ngFor="let node of nodes">
+      <div class="marker">{{node.power}}</div>
+    </mgl-marker>
   </mgl-map>
 </div>

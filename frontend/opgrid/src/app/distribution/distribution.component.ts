@@ -1,6 +1,8 @@
 // import { Component, OnInit } from '@angular/core';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-import { Map } from 'maplibre-gl';
+import { Map, GeoJSONSource } from 'maplibre-gl';
+
+const SOURCE_ID = 'finnish-grid';
 
 @Component({
   selector: 'app-distribution',
@@ -48,77 +50,22 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   ]
 
-  // marker = {
-  //   "type": "geojson",
-  //   "data": {
-  //       "type": "Feature",
-  //       "geometry": {
-  //           "type": "Point",
-  //           "coordinates": [27.1, 64.3]
-  //       },
-  //       "properties": {
-  //           "title": "Mapbox DC",
-  //           "marker-symbol": "monument"
-  //       }
-  //   }
-  // }
-
-  // geometries = [
-  //   {
-  //     'type': 'Point',
-  //     'coordinates': [25.699977, 62.872534]
-  //   },
-  //   {
-  //     'type': 'Point',
-  //     'coordinates': [24.699977, 63.872534]
-  //   },
-  //   {
-  //     'type': 'Point',
-  //     'coordinates': [26.699977, 61.872534]
-  //   }
-  // ]
-
-  // geometries = [
-  //   {
-  //     'type': 'Feature',
-  //     'geometry': {
-  //       'type': 'Point',
-  //       'coordinates': [25.699977, 62.872534]
-  //     },
-  //   },
-  //   {
-  //     'type': 'Feature',
-  //     'geometry': {
-  //       'type': 'Point',
-  //       'coordinates': [24.699977, 63.872534]
-  //     },
-  //   },
-  //   {
-  //     'type': 'Feature',
-  //     'geometry': {
-  //       'type': 'Point',
-  //       'coordinates': [26.699977, 61.872534]
-  //     }
-  //   },
-  // ]
-
-
   constructor() { }
 
   ngOnInit(): void {
   }
 
   ngOnDestroy() {
-    // this.map?.remove();
+    this.map?.remove();
   }
 
   ngAfterViewInit() {
-    // this.showMap();
+    this.showMap();
   }
 
   async showMap() {
     const map = await this.initMap();
-    await setTimeout(()=> {
+    await setTimeout(() => {
       this.setupMap(map);
     }, 3000);
   }
@@ -132,51 +79,56 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       center: [initialState.lng, initialState.lat],
       zoom: initialState.zoom
     });
+    console.log('this.map')
+    console.log(this.map)
     return this.map;
   }
 
   setupMap(map: Map) {
-    const result: Map = map.addSource('national-park', {
-      'type': 'geojson',
-      'data': {
-        'type': 'FeatureCollection',
-        'features': [
-          {
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Polygon',
-              'coordinates': [
-                [
-                  [25.699977, 62.872534],
-                  [24.699977, 63.872534],
-                  [26.699977, 61.872534]
-                ]
-              ]
-            }
-          },
-          {
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Point',
-              'coordinates': [25.699977, 62.872534]
-            }
-          },
-          {
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Point',
-              'coordinates': [24.699977, 63.872534]
-            }
-          },
-          {
-            'type': 'Feature',
-            'geometry': {
-              'type': 'Point',
-              'coordinates': [26.699977, 61.872534]
-            }
+    map.addSource(SOURCE_ID, {
+      type: 'geojson',
+      data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_ports.geojson'
+    });
+
+    (map.getSource(SOURCE_ID) as GeoJSONSource).setData({
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": { "name": "First Island" },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [27.1, 64.3]
           }
-        ]
-      }
+        },
+        {
+          "type": "Feature",
+          "properties": { "name": "Second Island" },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [24.699977, 63.872534]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": { "name": "Thirde Island" },
+          "geometry": {
+            "type": "Point",
+            "coordinates": [26.699977, 61.872534]
+          }
+        }
+      ]
+    });
+
+    map.addLayer({
+      'id': 'park-volcanoes',
+      'type': 'circle',
+      'source': SOURCE_ID,
+      'paint': {
+        'circle-radius': 6,
+        'circle-color': '#B42222'
+      },
+      'filter': ['==', '$type', 'Point']
     });
 
   }

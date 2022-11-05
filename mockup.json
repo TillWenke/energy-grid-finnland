@@ -19,10 +19,10 @@
             "power": -590
         }
     ],
-    "edges": [
+    "links": [
         {
-            "id_a": 12345,
-            "id_b": 98765,
+            "source": 12345,
+            "target": 98765,
             "capacity": 1200
         },
         {

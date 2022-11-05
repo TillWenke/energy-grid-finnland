@@ -20,6 +20,10 @@
     "@angular/platform-browser": "^14.2.9",
     "@angular/platform-browser-dynamic": "^14.2.9",
     "@angular/router": "^14.2.9",
+    "@maplibre/ngx-maplibre-gl": "^14.0.0-pre.2",
+    "@types/geojson": "^7946.0.10",
+    "@types/maplibre-gl": "^1.14.0",
+    "maplibre-gl": "^3.0.0-pre.1",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

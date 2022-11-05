@@ -65,8 +65,11 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async showMap() {
     const map = await this.initMap();
+
+    // initMap needs to load style.json from the internet, wait for it to complete
     await setTimeout(() => {
       this.setupMap(map);
+      this.addLine(map);
     }, 3000);
   }
 
@@ -79,8 +82,6 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       center: [initialState.lng, initialState.lat],
       zoom: initialState.zoom
     });
-    console.log('this.map')
-    console.log(this.map)
     return this.map;
   }
 
@@ -121,7 +122,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     map.addLayer({
-      'id': 'park-volcanoes',
+      'id': 'red-circle',
       'type': 'circle',
       'source': SOURCE_ID,
       'paint': {
@@ -132,4 +133,36 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
   }
+
+  addLine(map: Map) {
+    map.addSource('route', {
+      'type': 'geojson',
+      'data': {
+        'type': 'Feature',
+        'properties': {},
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': [
+            [27.1, 64.3],
+            [24.699977, 63.872534]
+          ]
+        }
+      }
+    });
+    map.addLayer({
+      'id': 'route',
+      'type': 'line',
+      'source': 'route',
+      'layout': {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      'paint': {
+        'line-color': '#888',
+        'line-width': 2
+      }
+    });
+
+  }
+
 }

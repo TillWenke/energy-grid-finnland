@@ -10,6 +10,8 @@ class Network:
         # theoretical nodes at position n-2 (source) and n-1 (sink)
         self.node_demand = np.zeros((len(C)))
         
+        self.num_nodes = self.node_demand.shape[0]
+
         self.levels = np.zeros_like(self.node_demand)
 
         # we are going to use a dense matrix even though it will probably be sparse
@@ -46,13 +48,13 @@ class Network:
 
 def depth_first(network, s, sub_flow):
     # terminate if the source and dest are the same, i.e. if both are sink
-    if s == network.node_demand.shape[0] - 1:
+    if s == network.num_nodes - 1:
         return sub_flow
 
     dfs_flow = 0
 
     # check all nodes
-    for d in range(network.node_demand.shape[0]):
+    for d in range(network.num_nodes):
         # check if the path out along an edge has capacity and add it
         if network.levels[s] + 1 == network.levels[d] and  \
                 network.edge_flow[s][d] < network.edge_capacity[s][d]:
@@ -68,7 +70,7 @@ def depth_first(network, s, sub_flow):
     return dfs_flow
 
 def breadth_first(network):
-    num_nodes = network.node_demand.shape[0]
+    num_nodes = network.num_nodes
 
     # get the index of the source and the sinks
     #source = num_nodes - 2
@@ -107,3 +109,36 @@ def dinics(network):
     while(breadth_first(network)):
         #network.flow += depth_first(network, network.node_demand.shape[0] - 2, 1E16)
         network.flow += depth_first(network, 0, 1E10)
+
+def find_min_cut(network):
+    # create a list of visited nodes
+    visited = np.zeros_like(network.levels)
+
+    # create array denoting S and R cuts
+    min_cut_dfs(network, 0, visited)
+
+    # do another DFS on all visited nodes to find cross cut edges
+    cut_edges = find_cut_edges(network, visited)
+
+    return visited, cut_edges
+
+def min_cut_dfs(network, s, visited):
+    # mark the node as visited
+    visited[s] = 1
+
+    for d in range(network.num_nodes):
+        # traverse only the edges that are unsaturated
+        if network.edge_flow[s][d] < network.edge_capacity[s][d] and visited[d] == 0:
+            min_cut_dfs(network, d, visited)
+
+def find_cut_edges(network, visited):
+    cross_cut_edges = np.zeros_like(network.edge_capacity)
+    for s in range(network.num_nodes):
+        if visited[s] == 1:
+            for d in range(network.num_nodes):
+                if visited[d] == 0:
+                    cross_cut_edges[s][d] = network.edge_flow[s][d]
+    return cross_cut_edges
+
+
+

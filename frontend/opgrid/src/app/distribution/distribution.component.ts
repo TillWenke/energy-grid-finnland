@@ -1,43 +1,50 @@
-import { Component, OnInit } from '@angular/core';
+// import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Map } from 'maplibre-gl';
 
 @Component({
   selector: 'app-distribution',
   templateUrl: './distribution.component.html',
   styleUrls: ['./distribution.component.scss']
 })
-export class DistributionComponent implements OnInit {
+export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  map: Map | undefined;
+
+  @ViewChild('map')
+  private mapContainer!: ElementRef<HTMLElement>;
 
   nodes = [
     {
-        "id": 12345,
-        "lat": 62.872534,
-        "lon": 25.699977,
-        "power": 1380
+      "id": 12345,
+      "lat": 62.872534,
+      "lon": 25.699977,
+      "power": 1380
     },
     {
-        "id": 98765,
-        "lat": 63.872534,
-        "lon": 24.699977,
-        "power": -240
+      "id": 98765,
+      "lat": 63.872534,
+      "lon": 24.699977,
+      "power": -240
     },
     {
-        "id": 24680,
-        "lat": 61.872534,
-        "lon": 26.699977,
-        "power": -590
+      "id": 24680,
+      "lat": 61.872534,
+      "lon": 26.699977,
+      "power": -590
     }
   ]
 
   edges = [
     {
-        "id_a": 12345,
-        "id_b": 98765,
-        "capacity": 1200
+      "id_a": 12345,
+      "id_b": 98765,
+      "capacity": 1200
     },
     {
-        "id_a": 24680,
-        "id_b": 98765,
-        "capacity": 800
+      "id_a": 24680,
+      "id_b": 98765,
+      "capacity": 800
     }
   ]
 
@@ -95,70 +102,82 @@ export class DistributionComponent implements OnInit {
   //   },
   // ]
 
-  // geometry = {
-  //   type: 'LineString',
-  //   coordinates: [
-  //     [-122.48369693756104, 37.83381888486939],
-  //     [-122.48348236083984, 37.83317489144141],
-  //     [-122.48339653015138, 37.83270036637107],
-  //     [-122.48356819152832, 37.832056363179625],
-  //     [-122.48404026031496, 37.83114119107971],
-  //     [-122.48404026031496, 37.83049717427869],
-  //     [-122.48348236083984, 37.829920943955045],
-  //     [-122.48356819152832, 37.82954808664175],
-  //     [-122.48507022857666, 37.82944639795659],
-  //     [-122.48610019683838, 37.82880236636284],
-  //     [-122.48695850372314, 37.82931081282506],
-  //     [-122.48700141906738, 37.83080223556934],
-  //     [-122.48751640319824, 37.83168351665737],
-  //     [-122.48803138732912, 37.832158048267786],
-  //     [-122.48888969421387, 37.83297152392784],
-  //     [-122.48987674713133, 37.83263257682617],
-  //     [-122.49043464660643, 37.832937629287755],
-  //     [-122.49125003814696, 37.832429207817725],
-  //     [-122.49163627624512, 37.832564787218985],
-  //     [-122.49223709106445, 37.83337825839438],
-  //     [-122.49378204345702, 37.83368330777276],
-  //   ],
-  // };
-
-  // source = {
-  //   type: 'geojson',
-  //   data: {
-  //     type: 'Feature',
-  //     properties: {},
-  //     geometry: {
-  //       type: 'LineString',
-  //       coordinates: [
-  //         [-122.48369693756104, 37.83381888486939],
-  //         [-122.48348236083984, 37.83317489144141],
-  //         [-122.48339653015138, 37.83270036637107],
-  //         [-122.48356819152832, 37.832056363179625],
-  //         [-122.48404026031496, 37.83114119107971],
-  //         [-122.48404026031496, 37.83049717427869],
-  //         [-122.48348236083984, 37.829920943955045],
-  //         [-122.48356819152832, 37.82954808664175],
-  //         [-122.48507022857666, 37.82944639795659],
-  //         [-122.48610019683838, 37.82880236636284],
-  //         [-122.48695850372314, 37.82931081282506],
-  //         [-122.48700141906738, 37.83080223556934],
-  //         [-122.48751640319824, 37.83168351665737],
-  //         [-122.48803138732912, 37.832158048267786],
-  //         [-122.48888969421387, 37.83297152392784],
-  //         [-122.48987674713133, 37.83263257682617],
-  //         [-122.49043464660643, 37.832937629287755],
-  //         [-122.49125003814696, 37.832429207817725],
-  //         [-122.49163627624512, 37.832564787218985],
-  //         [-122.49223709106445, 37.83337825839438],
-  //         [-122.49378204345702, 37.83368330777276]
-  //       ]
-  //     }
-  //   }
-  // }
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
+  ngOnDestroy() {
+    // this.map?.remove();
+  }
+
+  ngAfterViewInit() {
+    // this.showMap();
+  }
+
+  async showMap() {
+    const map = await this.initMap();
+    await setTimeout(()=> {
+      this.setupMap(map);
+    }, 3000);
+  }
+
+  async initMap() {
+    const initialState = { lng: 27.1, lat: 64.3, zoom: 5 };
+
+    this.map = await new Map({
+      container: this.mapContainer.nativeElement,
+      style: `https://demotiles.maplibre.org/style.json`,
+      center: [initialState.lng, initialState.lat],
+      zoom: initialState.zoom
+    });
+    return this.map;
+  }
+
+  setupMap(map: Map) {
+    const result: Map = map.addSource('national-park', {
+      'type': 'geojson',
+      'data': {
+        'type': 'FeatureCollection',
+        'features': [
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Polygon',
+              'coordinates': [
+                [
+                  [25.699977, 62.872534],
+                  [24.699977, 63.872534],
+                  [26.699977, 61.872534]
+                ]
+              ]
+            }
+          },
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [25.699977, 62.872534]
+            }
+          },
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [24.699977, 63.872534]
+            }
+          },
+          {
+            'type': 'Feature',
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [26.699977, 61.872534]
+            }
+          }
+        ]
+      }
+    });
+
+  }
 }

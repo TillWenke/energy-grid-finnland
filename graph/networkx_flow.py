@@ -3,7 +3,7 @@ import numpy as np
 import json
 
 graph = None
-with open('../grid_contracted.json') as infile:
+with open('../grid_contracted_nonan.json') as infile:
     graph = nx.node_link_graph(json.loads(infile.read()))
 
     print(nx.is_connected(graph))
@@ -25,7 +25,7 @@ with open('../grid_contracted.json') as infile:
     res = nx.algorithms.flow.dinitz(graph, s=0, t=1, capacity='capacity')
     #flow, cut = nx.minimum_cut(graph, _s=graph.nodes[0], _t=graph.nodes[1])
 
-    flow_value = nx.maximum_flow_value(graph, _s=0, _t=1, capacity='capacity')
+    flow_value = nx.maximum_flow_value(graph, _s=9510316607, _t=5614305295, capacity='capacity')
     print(flow_value)
 
     print(res.graph['flow_value'])

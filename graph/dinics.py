@@ -142,7 +142,7 @@ def find_cut_edges(network, visited):
                     cross_cut_edges[s][d] = network.edge_flow[s][d]
     return cross_cut_edges
 
-def to_dense(json_filename='../grid_contracted.json'):
+def to_dense(json_filename='../grid_contracted_nonan.json'):
     # make the graph bi-directional and make it dense
     with open(json_filename, 'r') as infile:
         graph = nx.node_link_graph(json.loads(infile.read()))
@@ -157,5 +157,7 @@ def to_dense(json_filename='../grid_contracted.json'):
 
 
         print(graph.adj[0])
+        print(graph.adj[1])
+
         graph = nx.to_numpy_matrix(graph, weight="capacity", nonedge=0.0)
     return graph

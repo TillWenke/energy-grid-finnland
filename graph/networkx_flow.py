@@ -2,9 +2,9 @@ import networkx as nx
 import numpy as np
 import json
 
-def get_partition()
+def get_partition(file_path='../grid_contracted_units.json'):
     graph = None
-    with open('../grid_contracted_units.json') as infile:
+    with open(file_path) as infile:
         graph = nx.node_link_graph(json.loads(infile.read()))
     
         # make a digraph

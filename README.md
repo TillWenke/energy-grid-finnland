@@ -8,6 +8,10 @@ Building a representation of the Finnish power grid as a graph including power l
 
 Contraction/ Collapsing this graph to only include producer/ consumer nodes and no intermediate nodes (links between power lines) and modify it to run "max flow min cut" algorithm on it to identify bottlenecks in the power grid >>> graph_preparation/grid_contracted_units.json
 
+# Suggestions for new power lines to build to remove bottlenecks and better distribute the country's energy
+![image](https://user-images.githubusercontent.com/38500891/200170288-2566cc95-d934-459e-8530-2efb76af5841.png)
+
+
 # View the results - suggestions for new power lines
 * having nodejs and angular installed
 * in frontend/opgrid run "npm i"

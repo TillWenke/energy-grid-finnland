@@ -99,6 +99,7 @@ def breadth_first(network):
 
     return network.levels[sink] > 0
 
+
 def dinics(network):
     # set the flag that we ran the network flow
     network.flow = 0
@@ -151,7 +152,7 @@ def to_dense(json_filename='../grid_contracted_nonan.json'):
         graph.add_node(1,power=0) # sink
 
         for n in graph:
-            graph.add_edge(0, n, capacity=graph.nodes[n]['power']) if graph.nodes[n]['power'] > 0 else graph.add_edge(n, 1, capacity=graph.nodes[n]['power'])
+            graph.add_edge(0, n, capacity=graph.nodes[n]['power']) if graph.nodes[n]['power'] > 0 else graph.add_edge(n, 1, capacity=-graph.nodes[n]['power'])
 
         # replace all nan's with 0's (ex line #269)
 

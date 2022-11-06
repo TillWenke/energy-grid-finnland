@@ -110,8 +110,9 @@ exit
 res = nx.algorithms.flow.dinitz(graph, s=0, t=5, capacity='weight')
 #flow, cut = nx.minimum_cut(graph, _s=graph.nodes[0], _t=graph.nodes[1])
 
-flow_value = nx.maximum_flow_value(graph, 0, 5, capacity='weight')
+flow_value, part = nx.minimum_cut(graph, 0, 5, capacity='weight')
 print(flow_value)
+print(part)
 
 print(res.graph['flow_value'])
 

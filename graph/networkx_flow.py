@@ -17,19 +17,26 @@ with open('../grid_contracted_nonan.json') as infile:
     print(graph.number_of_nodes())
     # make the source and the sink at index 0 and 1
     for n in graph:
-        graph.add_edge(0, n, capacity=graph.nodes[n]['power']) if graph.nodes[n]['power'] > 0 else graph.add_edge(n, 1, capacity=graph.nodes[n]['power'])
+        if graph.nodes[n]['power'] > 0:
+            graph.add_edge(0, n, capacity=3*graph.nodes[n]['power'])
+        elif graph.nodes[n]['power'] < 0:
+            graph.add_edge(n, 1, capacity=-graph.nodes[n]['power'])
 
-    print(graph.nodes[9510316607])
-    print(graph.nodes[0]['power'])
-    print(graph.nodes[1])
-    res = nx.algorithms.flow.dinitz(graph, s=0, t=1, capacity='capacity')
-    #flow, cut = nx.minimum_cut(graph, _s=graph.nodes[0], _t=graph.nodes[1])
 
-    flow_value = nx.maximum_flow_value(graph, _s=9510316607, _t=5614305295, capacity='capacity')
+    prod = 0
+    con = 0
+    for n in graph:
+        if graph.nodes[n]['power'] > 0:
+            prod += 3*graph.nodes[n]['power']
+        else:
+            con += -graph.nodes[n]['power']
+
+    print('power balance', prod, con)
+
+    print(nx.get_edge_attributes(graph, 'capacity'))
+
+    #flow_value, part = nx.maximum_flow_value(graph, _s=0, _t=1, capacity='capacity', flow_func=nx.algorithms.flow.dinitz)
+    flow_value, part = nx.minimum_cut(graph, _s=0, _t=1, capacity='capacity', flow_func=nx.algorithms.flow.dinitz)
     print(flow_value)
 
-    print(res.graph['flow_value'])
-
-    #print(graph.nodes)
-
-    print(graph.edges['capacity'])
+    print(part)

@@ -1,31 +1,31 @@
 // import { Component, OnInit } from '@angular/core';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
-import { Map, GeoJSONSource } from 'maplibre-gl';
-import { data } from '../../data/grid'; 
+import { Map, GeoJSONSource, Marker, Popup } from 'maplibre-gl';
+import { data } from '../../data/grid';
 import { GeoJSON, Feature } from 'geojson';
 
 const baseLineWidth = 0.002;
 const baseRadius = 20;
 const baseZoom = 10;
 
-const proposals = {"0":{"source":1147151748,"target":3536595671},"1":{"source":824065452,"target":4447358451},"2":{"source":634989945,"target":2636358023},"3":{"source":2408331411,"target":2408331526},"4":{"source":2647668116,"target":1568817948},"5":{"source":2156877608,"target":4011659942},"6":{"source":2278030269,"target":2759244272},"7":{"source":7833850369,"target":7833827236},"8":{"source":246529612,"target":294854486},"9":{"source":6175259891,"target":288465276},"10":{"source":1092860862,"target":5048354290},"11":{"source":1224394666,"target":1425122020},"12":{"source":1802301146,"target":5931192731},"13":{"source":2408331345,"target":2408331223},"14":{"source":2376430694,"target":1019905622},"15":{"source":1224394666,"target":2090571394},"16":{"source":8661578399,"target":8661598578},"17":{"source":3943008213,"target":3943008240}};
+const proposals = { "0": { "source": 1147151748, "target": 3536595671 }, "1": { "source": 824065452, "target": 4447358451 }, "2": { "source": 634989945, "target": 2636358023 }, "3": { "source": 2408331411, "target": 2408331526 }, "4": { "source": 2647668116, "target": 1568817948 }, "5": { "source": 2156877608, "target": 4011659942 }, "6": { "source": 2278030269, "target": 2759244272 }, "7": { "source": 7833850369, "target": 7833827236 }, "8": { "source": 246529612, "target": 294854486 }, "9": { "source": 6175259891, "target": 288465276 }, "10": { "source": 1092860862, "target": 5048354290 }, "11": { "source": 1224394666, "target": 1425122020 }, "12": { "source": 1802301146, "target": 5931192731 }, "13": { "source": 2408331345, "target": 2408331223 }, "14": { "source": 2376430694, "target": 1019905622 }, "15": { "source": 1224394666, "target": 2090571394 }, "16": { "source": 8661578399, "target": 8661598578 }, "17": { "source": 3943008213, "target": 3943008240 } };
 
-const metersPerPixel = function(latitude: any, zoomLevel: any) { 
-  const EARTH_RADIUS = 6378137; const TILESIZE = 512; 
-  const EARTH_CIRCUMFERENCE = 2 * Math.PI * EARTH_RADIUS; 
-  const scale = Math.pow(2,zoomLevel); 
-  const worldSize = TILESIZE * scale; 
-  var latitudeRadians = latitude * (Math.PI/180); 
-  return EARTH_CIRCUMFERENCE * Math.cos(latitudeRadians) / worldSize; 
+const metersPerPixel = function (latitude: any, zoomLevel: any) {
+  const EARTH_RADIUS = 6378137; const TILESIZE = 512;
+  const EARTH_CIRCUMFERENCE = 2 * Math.PI * EARTH_RADIUS;
+  const scale = Math.pow(2, zoomLevel);
+  const worldSize = TILESIZE * scale;
+  var latitudeRadians = latitude * (Math.PI / 180);
+  return EARTH_CIRCUMFERENCE * Math.cos(latitudeRadians) / worldSize;
 };
 
-var pixelValue = function(latitude: any, meters: any, zoomLevel: any) {
+var pixelValue = function (latitude: any, meters: any, zoomLevel: any) {
   return meters / metersPerPixel(latitude, zoomLevel);
 };
 
 
 var nodes: any = []
-data.nodes.forEach(function(node){
+data.nodes.forEach(function (node) {
   nodes[node.id] = node;
 });
 const SOURCE_ID = 'finnish-grid';
@@ -65,6 +65,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.addTowns(map);
       this.addPowerPlants(map);
       this.addProposedLines(map)
+      this.addLabels(map)
     }, 1000);
   }
 
@@ -88,8 +89,9 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_ports.geojson'
     });
 
-    const points: GeoJSON = { "type": "FeatureCollection",
-    "features": data.nodes.map(function(node){
+    const points: GeoJSON = {
+      "type": "FeatureCollection",
+      "features": data.nodes.map(function (node) {
         const f: Feature = {
           "type": "Feature",
           "properties": { "name": "Second Island" },
@@ -101,7 +103,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
         return f;
       })
     };
-    
+
     (map.getSource(SOURCE_ID) as GeoJSONSource).setData(points);
 
     map.addLayer({
@@ -113,14 +115,15 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   addPowerLines(map: Map) {
-    map.addSource('lines', { 'type': 'geojson',
+    map.addSource('lines', {
+      'type': 'geojson',
       'data': {
         'type': 'FeatureCollection',
-        'features': data.links.map(function(link){
+        'features': data.links.map(function (link) {
           const f: Feature = {
             "type": "Feature",
-            "properties": { 
-              "capacity":  Math.sqrt(link.capacity)*baseLineWidth
+            "properties": {
+              "capacity": Math.sqrt(link.capacity) * baseLineWidth
             },
             "geometry": {
               "type": "LineString",
@@ -147,30 +150,31 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       'paint': {
         'line-color': '#808080',
         "line-width": [
-          'interpolate', 
+          'interpolate',
           ['exponential', 2],
           ['zoom'],
           // @ts-expect-error
           0, ["*", ["get", "capacity"], ["^", 2, -baseZoom]],
           // @ts-expect-error
-          24, ["*", ["get", "capacity"], ["^", 2, 24-baseZoom]]
-      ]
+          24, ["*", ["get", "capacity"], ["^", 2, 24 - baseZoom]]
+        ]
       }
     })
   }
 
   addTowns(map: Map) {
-    map.addSource('towns', { 'type': 'geojson',
+    map.addSource('towns', {
+      'type': 'geojson',
       'data': {
         'type': 'FeatureCollection',
-        'features': data.nodes.filter(function(node){
+        'features': data.nodes.filter(function (node) {
           return node.power < 0;
-        }).map(function(node){
+        }).map(function (node) {
           const f: Feature = {
             "type": "Feature",
-            "properties": { 
+            "properties": {
               'color': '#33C9EB', // blue 
-              'radius': Math.log(-node.power)*baseRadius
+              'radius': Math.log(-node.power) * baseRadius
             },
             "geometry": {
               "type": "Point",
@@ -187,31 +191,32 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       'source': 'towns',
       'paint': {
         'circle-radius': [
-          'interpolate', 
+          'interpolate',
           ['exponential', 2],
           ['zoom'],
           // @ts-expect-error
           0, ["*", ["get", "radius"], ["^", 2, -baseZoom]],
           // @ts-expect-error
-          24, ["*", ["get", "radius"], ["^", 2, 24-baseZoom]]
-      ],
+          24, ["*", ["get", "radius"], ["^", 2, 24 - baseZoom]]
+        ],
         'circle-color': ['get', 'color']
       }
     });
   };
 
   addPowerPlants(map: Map) {
-    map.addSource('powerplants', { 'type': 'geojson',
+    map.addSource('powerplants', {
+      'type': 'geojson',
       'data': {
         'type': 'FeatureCollection',
-        'features': data.nodes.filter(function(node){
+        'features': data.nodes.filter(function (node) {
           return node.power > 0;
-        }).map(function(node){
+        }).map(function (node) {
           const f: Feature = {
             "type": "Feature",
             'properties': {
               'color': '#F7455D', // red
-              'radius': Math.log(node.power)*baseRadius,
+              'radius': Math.log(node.power) * baseRadius,
             },
             "geometry": {
               "type": "Point",
@@ -228,28 +233,29 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       'source': 'powerplants',
       paint: {
         'circle-radius': [
-          'interpolate', 
+          'interpolate',
           ['exponential', 2],
           ['zoom'],
           // @ts-expect-error
           0, ["*", ["get", "radius"], ["^", 2, -baseZoom]],
           // @ts-expect-error
-          24, ["*", ["get", "radius"], ["^", 2, 24-baseZoom]]
-      ],
+          24, ["*", ["get", "radius"], ["^", 2, 24 - baseZoom]]
+        ],
         'circle-color': ['get', 'color']
       }
     });
   };
 
   addProposedLines(map: Map) {
-    map.addSource('proposals', { 'type': 'geojson',
+    map.addSource('proposals', {
+      'type': 'geojson',
       'data': {
         'type': 'FeatureCollection',
-        'features': Object.values(proposals).map(function(coord){
+        'features': Object.values(proposals).map(function (coord) {
           const f: Feature = {
             "type": "Feature",
-            "properties": { 
-              "capacity":  Math.sqrt(10000000000)*baseLineWidth
+            "properties": {
+              "capacity": Math.sqrt(10000000000) * baseLineWidth
             },
             "geometry": {
               "type": "LineString",
@@ -279,5 +285,135 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
         "line-width": 10
       }
     })
+  }
+
+  addLabels(map: Map) {
+
+    // new Marker().setPopup(
+    //   new Popup({ offset: 25 }).setHTML('<p>Suggested Line</p>' )
+    // ).setLngLat([34, 64]).addTo(map);
+
+    map.addSource('label-lines', {
+      'type': 'geojson',
+      'data': {
+        'type': 'Feature',
+        'properties': {},
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': [
+            [32, 63],
+            [33, 63]
+          ]
+        }
+      }
+    });
+    map.addLayer({
+      'id': 'label-lines',
+      'type': 'line',
+      'source': 'label-lines',
+      'layout': {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      'paint': {
+        'line-color': '#25F75D',
+        'line-width': 10
+      }
+    });
+
+    map.addLayer({
+      'id': 'poi-labels',
+      'type': 'symbol',
+      'source': 'label-lines',
+      'layout': {
+        'text-field': 'Suggested lines',
+        'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+        'text-radial-offset': -1,
+        'text-justify': 'auto',
+        'icon-image': ['concat', ['get', 'icon'], '-15']
+      }
+    });
+
+
+    // Add Circle label
+    map.addSource('label-red-circle', {
+      'type': 'geojson',
+      'data': {
+        'type': 'Feature',
+        'properties': {
+          'color': '#F7455D', // red
+          'radius': 10,
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [32, 65]
+        }
+      }
+    });
+    map.addLayer({
+      'id': 'label-red-circle',
+      'type': 'circle',
+      'source': 'label-red-circle',
+      'filter': ['==', '$type', 'Point'],
+      'paint': {
+        'circle-radius': 10,
+        'circle-color': '#F7455D'
+      }
+    });
+
+    map.addLayer({
+      'id': 'red-cicle-labels',
+      'type': 'symbol',
+      'source': 'label-red-circle',
+      'layout': {
+        'text-field': 'Power Plants',
+        'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+        'text-radial-offset': -1,
+        'text-justify': 'auto',
+        'icon-image': ['concat', ['get', 'icon'], '-15']
+      }
+    });
+
+
+    // Add Blue Circle
+    map.addSource('label-blue-circle', {
+      'type': 'geojson',
+      'data': {
+        'type': 'Feature',
+        'properties': {
+          'color': '#', // red
+          'radius': 10,
+        },
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [32, 64]
+        }
+      }
+    });
+    map.addLayer({
+      'id': 'label-blue-circle',
+      'type': 'circle',
+      'source': 'label-blue-circle',
+      'filter': ['==', '$type', 'Point'],
+      'paint': {
+        'circle-radius': 10,
+        'circle-color': '#33C9EB'
+      }
+    });
+
+    map.addLayer({
+      'id': 'blue-circle-labels',
+      'type': 'symbol',
+      'source': 'label-blue-circle',
+      'layout': {
+        'text-field': 'Consumers - Cities',
+        'text-variable-anchor': ['top', 'bottom', 'left', 'right'],
+        'text-radial-offset': -1,
+        'text-justify': 'auto',
+        'icon-image': ['concat', ['get', 'icon'], '-15']
+      }
+    });
+
+
   }
 }

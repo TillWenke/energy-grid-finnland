@@ -150,7 +150,9 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
           'interpolate', 
           ['exponential', 2],
           ['zoom'],
+          // @ts-expect-error
           0, ["*", ["get", "capacity"], ["^", 2, -baseZoom]],
+          // @ts-expect-error
           24, ["*", ["get", "capacity"], ["^", 2, 24-baseZoom]]
       ]
       }
@@ -188,7 +190,9 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
           'interpolate', 
           ['exponential', 2],
           ['zoom'],
+          // @ts-expect-error
           0, ["*", ["get", "radius"], ["^", 2, -baseZoom]],
+          // @ts-expect-error
           24, ["*", ["get", "radius"], ["^", 2, 24-baseZoom]]
       ],
         'circle-color': ['get', 'color']
@@ -227,7 +231,9 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
           'interpolate', 
           ['exponential', 2],
           ['zoom'],
+          // @ts-expect-error
           0, ["*", ["get", "radius"], ["^", 2, -baseZoom]],
+          // @ts-expect-error
           24, ["*", ["get", "radius"], ["^", 2, 24-baseZoom]]
       ],
         'circle-color': ['get', 'color']

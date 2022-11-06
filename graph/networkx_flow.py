@@ -34,4 +34,4 @@ def get_partition(file_path='../grid_contracted_units.json'):
         for p in par:
             if p[0] != 0 and p[1] != 1:
                 fixed.append(p)
-    return fixed
+    return fixed, flow_value

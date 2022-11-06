@@ -4,8 +4,8 @@ import { Map, GeoJSONSource } from 'maplibre-gl';
 import { data } from '../../data/grid'; 
 import { GeoJSON, Feature } from 'geojson';
 
-const baseLineWidth = 0.0000002;
-const baseRadius = 0.1;
+const baseLineWidth = 0.002;
+const baseRadius = 20;
 const baseZoom = 10;
 
 const proposals = {"0":{"source":1147151748,"target":3536595671},"1":{"source":824065452,"target":4447358451},"2":{"source":634989945,"target":2636358023},"3":{"source":2408331411,"target":2408331526},"4":{"source":2647668116,"target":1568817948},"5":{"source":2156877608,"target":4011659942},"6":{"source":2278030269,"target":2759244272},"7":{"source":7833850369,"target":7833827236},"8":{"source":246529612,"target":294854486},"9":{"source":6175259891,"target":288465276},"10":{"source":1092860862,"target":5048354290},"11":{"source":1224394666,"target":1425122020},"12":{"source":1802301146,"target":5931192731},"13":{"source":2408331345,"target":2408331223},"14":{"source":2376430694,"target":1019905622},"15":{"source":1224394666,"target":2090571394},"16":{"source":8661578399,"target":8661598578},"17":{"source":3943008213,"target":3943008240}};
@@ -120,7 +120,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
           const f: Feature = {
             "type": "Feature",
             "properties": { 
-              "capacity":  link.capacity*baseLineWidth
+              "capacity":  Math.sqrt(link.capacity)*baseLineWidth
             },
             "geometry": {
               "type": "LineString",
@@ -145,7 +145,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       "minzoom": 0,
       "maxzoom": 24,
       'paint': {
-        'line-color': '#888',
+        'line-color': '#808080',
         "line-width": [
           'interpolate', 
           ['exponential', 2],
@@ -168,7 +168,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
             "type": "Feature",
             "properties": { 
               'color': '#33C9EB', // blue 
-              'radius': -node.power/(1/baseRadius)
+              'radius': Math.log(-node.power)*baseRadius
             },
             "geometry": {
               "type": "Point",
@@ -207,7 +207,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
             "type": "Feature",
             'properties': {
               'color': '#F7455D', // red
-              'radius': node.power/(1/baseRadius),
+              'radius': Math.log(node.power)*baseRadius,
             },
             "geometry": {
               "type": "Point",
@@ -243,7 +243,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
           const f: Feature = {
             "type": "Feature",
             "properties": { 
-              "capacity":  1000000000*baseLineWidth
+              "capacity":  Math.sqrt(1000000000)*baseLineWidth
             },
             "geometry": {
               "type": "LineString",

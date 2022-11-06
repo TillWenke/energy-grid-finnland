@@ -243,7 +243,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
           const f: Feature = {
             "type": "Feature",
             "properties": { 
-              "capacity":  Math.sqrt(1000000000)*baseLineWidth
+              "capacity":  Math.sqrt(10000000000)*baseLineWidth
             },
             "geometry": {
               "type": "LineString",
@@ -270,13 +270,7 @@ export class DistributionComponent implements OnInit, AfterViewInit, OnDestroy {
       'paint': {
         'line-opacity': 0.5,
         'line-color': '#25F75D',
-        "line-width": [
-          'interpolate', 
-          ['exponential', 2],
-          ['zoom'],
-          0, ["*", ["get", "capacity"], ["^", 2, -baseZoom]],
-          24, ["*", ["get", "capacity"], ["^", 2, 24-baseZoom]]
-      ]
+        "line-width": 10
       }
     })
   }

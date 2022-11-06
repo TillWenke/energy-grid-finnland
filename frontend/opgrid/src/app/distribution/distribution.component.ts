@@ -1,3 +1,4 @@
+// @ts-nocheck
 // import { Component, OnInit } from '@angular/core';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { Map, GeoJSONSource } from 'maplibre-gl';

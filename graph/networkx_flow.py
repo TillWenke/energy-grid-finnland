@@ -15,7 +15,7 @@ def get_partition(file_path='../grid_contracted_units.json'):
         for n in graph:
             if graph.nodes[n]['power'] > 0:
                 graph.add_edge(0, n, capacity=3*graph.nodes[n]['power'])
-        elif graph.nodes[n]['power'] < 0:
+            elif graph.nodes[n]['power'] < 0:
                 graph.add_edge(n, 1, capacity=-graph.nodes[n]['power'])
         '''
         prod = 0
